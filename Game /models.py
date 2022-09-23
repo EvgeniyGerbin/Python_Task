@@ -1,5 +1,6 @@
 import random
 import sys
+import time
 from enum import Enum
 
 
@@ -13,15 +14,22 @@ class CharacterType(Enum):
 class Character:
     def __init__(self, name, health, damage, critical, luck, level):
         self.name = name
-        self.health = health
+        self._health = health
+        self.current_health = health
         self.damage = damage
         self.critical = critical
         self.luck = luck
         self.level = level
 
-    def character_info(self):
+    def get_health(self):
+        return self._health
+
+    def set_health(self, value):
+        self._health = value
+
+    def __str__(self):
         return print(f'Character: {self.name}, level {self.level}\n'
-                     f'Health: {self.health}\n'
+                     f'Health: {self.get_health()}\n'
                      f'Damage: {self.damage}\n'
                      f'Critical damage: {round(self.critical * 100)}%\n'
                      f'Luck: {self.luck}%')
@@ -34,52 +42,14 @@ class Character:
         else:
             return self.damage
 
-    def fight(self, enemy_obj):
-        move = 1
-        while self.health or enemy_obj.health <= 0:
-            print("**********************")
-            print(f'MOVE {move}')
-            print(f'{self.name}: {int(self.health)}hp, {self.damage}dmg, level[{self.level}]')
-            print(f'{enemy_obj.name}: {int(enemy_obj.health)}hp, {enemy_obj.damage}dmg, level[{enemy_obj.level}]')
-
-            enemy_obj.health -= self.dmg()
-            self.health -= enemy_obj.dmg()
-            move = move + 1
-            if self.health <= 0:
-                enemy_obj.lvl_up()
-                self.heal()
-                print(f'You lose!\n'
-                      f'Enemy level: {enemy_obj.level}')
-                press = int(input('1) Try again!\n'
-                                  '2) Exit game!\n'
-                                  ''))
-                match press:
-                    case 1:
-                        game.start_game()
-                    case 2:
-                        sys.exit()
-                    case _:
-                        print('Incorrect input!')
-            if enemy_obj.health <= 0:
-                self.lvl_up()
-                enemy_obj.heal()
-                print(f'You win!\n'
-                      f'Your level: {self.level} ')
-                press = int(input('1) Try again!\n'
-                                  '2) Exit game!\n'))
-                match press:
-                    case 1:
-                        game.start_game()
-                    case 2:
-                        sys.exit()
-                    case _:
-                        print('Incorrect input!')
-
     def heal(self):
-        pass
+        self.current_health = self.get_health()
+        self.level = 1
 
     def lvl_up(self):
-        pass
+        self.level += 1
+        self.current_health = self.get_health() + self.get_health() * 0.15
+        self.damage = self.damage + self.damage * 0.10
 
 
 class Warrior(Character):
@@ -87,67 +57,35 @@ class Warrior(Character):
     def __init__(self):
         super().__init__('Warrior', 150, 12, 0.15, 30, 1)
 
-    def fight(self, enemy_obj):
-        if isinstance(enemy_obj, Wizard):
-            self.damage = self.damage + (self.damage * 0.15)
+    def attack(self, enemy):
+        if isinstance(enemy, Wizard):
+            return self.dmg() + (self.damage * 0.15)
         else:
-            self.damage = self.damage
-        super().fight(enemy_obj)
+            return self.dmg()
 
-    def lvl_up(self):
-        self.level += 1
-        self.health = 150 + self.level * 2
-        self.damage = 12 + self.level * 2
-
-    def heal(self):
-        self.health = 150
-        self.level = 1
-        self.damage = 12
 
 class Wizard(Character):
 
     def __init__(self):
         super().__init__('Wizard', 80, 16, 0.3, 30, 1)
 
-    def fight(self, enemy_obj):
-        if isinstance(enemy_obj, Archer):
-            self.damage = self.damage + (self.damage * 0.15)
+    def attack(self, enemy):
+        if isinstance(enemy, Archer):
+            return self.dmg() + (self.damage * 0.15)
         else:
-            self.damage = self.damage
-        super().fight(enemy_obj)
+            return self.dmg()
 
-    def lvl_up(self):
-        self.level += 1
-        self.health = 80 + self.level * 2
-        self.damage = 16 + self.level * 2
-
-    def heal(self):
-        self.health = 80
-        self.level = 1
-        self.damage = 16
 
 class Archer(Character):
 
     def __init__(self):
         super().__init__('Archer', 100, 15, 0.3, 25, 1)
 
-    def fight(self, enemy_obj):
-        if isinstance(enemy_obj, Rider):
-            self.damage = self.damage + (self.damage * 0.15)
+    def attack(self, enemy):
+        if isinstance(enemy, Rider):
+            return self.dmg() + (self.damage * 0.15)
         else:
-            self.damage = self.damage
-
-        super().fight(enemy_obj)
-
-    def lvl_up(self):
-        self.level += 1
-        self.health = 100 + self.level * 2
-        self.damage = 15 + self.level * 2
-
-    def heal(self):
-        self.health = 100
-        self.level = 1
-        self.damage = 15
+            return self.dmg()
 
 
 class Rider(Character):
@@ -155,22 +93,12 @@ class Rider(Character):
     def __init__(self):
         super().__init__('Rider', 160, 18, 0.2, 18, 1)
 
-    def fight(self, enemy_obj):
-        if isinstance(enemy_obj, Warrior):
-            self.damage = self.damage + (self.damage * 0.15)
+    def attack(self, enemy):
+        if isinstance(enemy, Warrior):
+            return self.dmg() + (self.damage * 0.15)
         else:
-            self.damage = self.damage
-        super().fight(enemy_obj)
+            return self.dmg()
 
-    def lvl_up(self):
-        self.level += 1
-        self.health = 160 + self.level * 2
-        self.damage = 18 + self.level * 2
-
-    def heal(self):
-        self.health = 160
-        self.level = 1
-        self.damage = 18
 
 def char(char_type: CharacterType):
     char_dict = {
@@ -199,6 +127,18 @@ class Game:
 
     def __del__(self):
         Game.__instance = None
+
+    @staticmethod
+    def options():
+        press = int(input('1) Try again!\n'
+                          '2) Exit game!\n'))
+        match press:
+            case 1:
+                game.start_game()
+            case 2:
+                sys.exit()
+            case _:
+                print('Incorrect input!')
 
     @staticmethod
     def select_character():
@@ -237,19 +177,62 @@ class Game:
             n = input()
             match n:
                 case '1':
-                    char1.fight(char2)
+                    game.fight(char1, char2)
                 case '2':
                     print('Your character:')
-                    char1.character_info()
+                    char1.__str__()
                     print('---------------------')
                     print("Enemy: ")
-                    char2.character_info()
+                    char2.__str__()
                     input('Press 1 to continue!\n')
                 case '3':
                     print('Goodbye!')
                     sys.exit()
                 case _:
                     print('Incorrect input, please try again!')
+
+    @staticmethod
+    def check(player, enemy):
+        if player.current_health <= 0:
+            enemy.lvl_up()
+            player.heal()
+            print(f'You lose!\n'
+                  f'Enemy level: {enemy.level} ')
+            game.options()
+        elif enemy.current_health <= 0:
+            player.lvl_up()
+            enemy.heal()
+            print(f'You win!\n'
+                  f'Your level: {player.level} ')
+            game.options()
+        elif enemy.current_health == 0 and player.current_health == 0:
+            player.heal()
+            enemy.heal()
+            print(f'It`s DRAW!')
+            game.options()
+
+    @staticmethod
+    def fight(player, enemy):
+        move = 1
+        while True:
+            print(f'Move{move}\n'
+                  f'{player.name} deals {player.attack(enemy)}\n'
+                  f'******************************************')
+            enemy.current_health -= player.attack(enemy)
+            print(f'{enemy.name} have {round(enemy.current_health)} hp.\n'
+                  f'{player.name} have {round(player.current_health)} hp.\n')
+            game.check(player, enemy)
+            move += 1
+            time.sleep(3)
+            print(f'Move{move}\n'
+                  f'{enemy.name} deals {enemy.attack(player)}\n'
+                  f'******************************************')
+            player.current_health -= enemy.attack(player)
+            print(f'{player.name} have {round(player.current_health)} hp.\n'
+                  f'{enemy.name} have {round(enemy.current_health)} hp.\n')
+            game.check(player, enemy)
+            move += 1
+            time.sleep(3)
 
 
 if __name__ == '__main__':
