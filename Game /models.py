@@ -29,7 +29,7 @@ class Character:
 
     def __str__(self):
         return print(f'Character: {self.name}, level {self.level}\n'
-                     f'Health: {self.get_health()}\n'
+                     f'Health: {self.current_health}\n'
                      f'Damage: {self.damage}\n'
                      f'Critical damage: {round(self.critical * 100)}%\n'
                      f'Luck: {self.luck}%')
@@ -223,7 +223,7 @@ class Game:
                   f'{player.name} have {round(player.current_health)} hp.\n')
             game.check(player, enemy)
             move += 1
-            time.sleep(3)
+            time.sleep(1)
             print(f'Move{move}\n'
                   f'{enemy.name} deals {enemy.attack(player)}\n'
                   f'******************************************')
@@ -232,7 +232,7 @@ class Game:
                   f'{enemy.name} have {round(enemy.current_health)} hp.\n')
             game.check(player, enemy)
             move += 1
-            time.sleep(3)
+            time.sleep(1)
 
 
 if __name__ == '__main__':
