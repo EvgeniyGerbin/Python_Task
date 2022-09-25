@@ -156,7 +156,7 @@ class Game:
         army2 = game.create_army()
         press = int(input('1) Army Fight!\n'
                           '2) View info!\n'
-                          '3) Main menu!'))
+                          '3) Main menu!\n'))
         match press:
             case 1:
                 game.army_fight(army1, army2)
@@ -165,7 +165,7 @@ class Game:
                 print('****************')
                 army2.__str__()
                 pres = int(input('1) To fight!\n'
-                                 '2) To Main Menu!'))
+                                 '2) To Main Menu!\n'))
                 match pres:
                     case 1:
                         game.army_fight(army1, army2)
